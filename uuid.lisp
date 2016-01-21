@@ -6,10 +6,8 @@
 
 (cl:defpackage :uuid
   (:use :common-lisp)
-  (:export :uuid :*ticks-per-count* :format-as-urn :make-null-uuid :make-uuid-from-string
-	   :make-v1-uuid :make-v3-uuid :make-v4-uuid :make-v5-uuid :uuid=
-	   :+namespace-dns+ :+namespace-url+ :+namespace-oid+ :+namespace-x500+
-	   :print-bytes :uuid-to-byte-array :byte-array-to-uuid))
+  (:export :make-uuid-string :make-null-uuid :make-uuid-from-string
+	   :make-v1-uuid :make-v3-uuid :make-v4-uuid :make-v5-uuid :uuid=))
 
 (cl:in-package :uuid)
 
@@ -170,7 +168,7 @@ characters.~@:>" string (length string)))
 
 (defmethod print-object ((id uuid) stream)
   "Prints an uuid in the string represenation of an uuid. (example string 6ba7b810-9dad-11d1-80b4-00c04fd430c8)"
-  (format stream "~8,'0X-~4,'0X-~4,'0X-~2,'0X~2,'0X-~12,'0X"
+  (format stream "~(~8,'0X-~4,'0X-~4,'0X-~2,'0X~2,'0X-~12,'0X~)"
 	  (time-low id)
 	  (time-mid id)
 	  (time-high id)
@@ -291,3 +289,7 @@ generation of version 3 and 5 uuids."
     (ironclad:update-digest digester uuid)
     (ironclad:update-digest digester (trivial-utf-8:string-to-utf-8-bytes name))
     (ironclad:produce-digest digester)))
+
+(defun make-uuid-string ()
+  (with-output-to-string (stream)
+    (print-object (make-v4-uuid) stream)))
